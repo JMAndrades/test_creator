@@ -1,6 +1,6 @@
 import sys, re
 # file_name = sys.argv[1]
-file_name = r'1.sql'
+file_name = r'DDL.sql'
 file = open(file_name, 'r')
 file_content = file.readlines()
 example_data = "INSERT INTO "
@@ -16,37 +16,37 @@ for line in file_content:
         example_data += f"{nombre}, "
         cont1 += 1
 example_data = example_data[:-2] + ") VALUES\n"
-for x in range(1,5):
+for x in range(1,6):
     cont2 = 0
     example_data += "("
     for line in file_content:
-        if 'CONSTRAINT' in line.upper():
-            pass
-        if 'IDENTITY' in line.upper():
-            pass
-        elif ' int ' in line or ' bigint ' in line or ' smallint ' in line or ' tinyint ' in line:
-            example_data += f"{x}, "
-            cont2 += 1
-        elif ' date ' in line or ' datetime ' in line or ' date2 ' in line or ' datetime2' in line or ' time ' in line or ' time2 ' in line or ' datetimeoffset ' in line:
-            example_data += f"'2022-08-0{x}', "
-            cont2 += 1
-        elif ' decimal(' in line or ' float(' in line:
-            example_data += f"{x}.{x-1}, "
-            cont2 += 1
-        elif ' varchar ' in line or ' nvarchar ' in line or ' char' in line or ' nchar' in line or ' varbinary' in line or ' binary' in line:
-            # longitud = int(re.sub("\).*$","",(re.sub(".*?\(","",line))))
-            longitud = re.sub("\).*$","",(re.sub(".*?\(","",line)))
-            print(longitud)
-            test = "test"[:longitud-1]
-            example_data += f"'{test}{x}', "
-            cont2 += 1
-        elif ' bit ' in line:
-            if x % 2 == 0:
-                example_data += f"1, "
-            else:
-                example_data += f"0, "
-            cont2 += 1
-    if x < 4:
+        words = line.split(" ")
+        if len(words) > 1:
+            if  'CONSTRAINT' in line.upper() or 'IDENTITY' in line.upper():
+                pass
+            elif 'int' in words[1] or 'bigint' in words[1] or 'smallint' in words[1] or 'tinyint' in words[1]:
+                example_data += f"{words[0]}={x}, "
+                cont2 += 1
+            elif 'date' in words[1] or 'datetime' in words[1] or 'date2' in words[1] or 'datetime2' in words[1] or 'time' in words[1] or 'time2' in words[1] or 'datetimeoffset' in words[1]:
+                example_data += f"{words[0]}='2022-08-0{x}', "
+                cont2 += 1
+            elif 'decimal' in words[1] or 'float' in words[1]:
+                example_data += f"{words[0]}={x}.{x-1}, "
+                cont2 += 1
+            elif 'varchar' in words[1] or 'nvarchar' in words[1] or 'char' in words[1] or 'nchar' in words[1] or 'varbinary' in words[1] or 'binary' in words[1]:
+                longitud = int(re.sub("\).*$","",(re.sub(".*?\(","",words[1]))))
+                # longitud = re.sub("\).*$","",(re.sub(".*?\(","",words[1])))
+                print(longitud)
+                test = "test"[:longitud-1]
+                example_data += f"{words[0]}='{test}{x}', "
+                cont2 += 1
+            elif 'bit' in words[1]:
+                if x % 2 == 0:
+                    example_data += f"{words[0]}=1, "
+                else:
+                    example_data += f"{words[0]}=0, "
+                cont2 += 1
+    if x < 5:
         example_data = example_data[:-2] +"),\n"
     else:
         example_data = example_data[:-2] +");"
